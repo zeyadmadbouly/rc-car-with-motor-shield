@@ -1,0 +1,204 @@
+#include <NewPing.h>
+#include <AFMotor.h>
+#include <Servo.h>
+#define TRIG_PIN A0 // Pin A0 on the Motor Drive Shield soldered to the ultrasonic sensor
+#define ECHO_PIN A1 // Pin A1 on the Motor Drive Shield soldered to the ultrasonic sensor
+#define MAX_DISTANCE 300 // sets maximum useable sensor measuring distance to 300cm
+#define COLL_DIST 30 // sets distance at which robot stops and reverses to 30cm
+#define TURN_DIST COLL_DIST+20 // sets distance at which robot veers away from object
+NewPing sonar(TRIG_PIN, ECHO_PIN, MAX_DISTANCE); // sets up sensor library to use the correct pins to measure distance.
+
+
+AF_DCMotor rightF_motor(1, MOTOR12_64KHZ);
+AF_DCMotor rightR_motor(2, MOTOR12_64KHZ);
+AF_DCMotor leftF_motor(3, MOTOR12_64KHZ);
+AF_DCMotor leftR_motor(4, MOTOR12_64KHZ);
+Servo servo1 ;
+int leftDistance, rightDistance; //distances on either side
+float carDist = 0;
+String motorSet = "";
+int speedSet = 0;
+
+
+void setup() {
+  Serial.begin(9600);
+  rightR_motor.setSpeed(255);
+  leftR_motor.setSpeed(255);
+  rightF_motor.setSpeed(255);
+  leftF_motor.setSpeed(255);
+  servo1.attach(9);// attaches the servo on pin 9 (SERVO_1 on the Motor Drive Shield to the servo object
+  servo1.write(90); // tells the servo to position at 90-degrees ie. facing forward.
+  pinMode(TRIG_PIN, OUTPUT);
+  pinMode(ECHO_PIN, INPUT);
+  delay(1000); // delay for one seconds
+}
+
+void loop()
+{
+  servo1.write(90);  // move eyes forward
+  delayMicroseconds(90);
+
+  if (Serial.available() > 0)
+  {
+    char d = 'S';
+    d = Serial.read();
+    carDist = readDist();
+    Serial.println(carDist);
+    // read distance
+    if (d == 'B') {
+      rightR_motor.setSpeed(255);
+      leftR_motor.setSpeed(255);
+      rightF_motor.setSpeed(255);
+      leftF_motor.setSpeed(255);
+      rightF_motor.run (BACKWARD);
+      rightR_motor.run (BACKWARD);
+      leftF_motor.run (BACKWARD);
+      leftR_motor.run (BACKWARD);
+
+    }
+
+    else  if (d == 'R') {
+      rightR_motor.setSpeed(255);
+      leftR_motor.setSpeed(255);
+      rightF_motor.setSpeed(255);
+      leftF_motor.setSpeed(255);
+      rightF_motor.run (FORWARD);
+      rightR_motor.run (FORWARD);
+      leftF_motor.run (BACKWARD);
+      leftR_motor.run (BACKWARD);
+
+    }
+    else if (d == 'L') {
+      rightR_motor.setSpeed(255);
+      leftR_motor.setSpeed(255);
+      rightF_motor.setSpeed(255);
+      leftF_motor.setSpeed(255);
+      rightF_motor.run (BACKWARD);
+      rightR_motor.run (BACKWARD);
+      leftF_motor.run (FORWARD);
+      leftR_motor.run (FORWARD);
+
+    }
+    else if (carDist < COLL_DIST) {
+
+      rightF_motor.run (RELEASE);
+      rightR_motor.run (RELEASE);
+      leftF_motor.run (RELEASE);
+      leftR_motor.run (RELEASE);
+      delay(500);
+
+      rightR_motor.setSpeed(255);
+      leftR_motor.setSpeed(255);
+      rightF_motor.setSpeed(255);
+      leftF_motor.setSpeed(255);
+      rightF_motor.run (BACKWARD);
+      rightR_motor.run (BACKWARD);
+      leftF_motor.run (BACKWARD);
+      leftR_motor.run (BACKWARD);
+      delay(500);
+      //servo1.write(-90);
+      //delay(1000);
+      //servo1.write(90);
+      //delay(1000);
+
+    }
+
+    else  if (d == 'R') {
+      rightR_motor.setSpeed(255);
+      leftR_motor.setSpeed(255);
+      rightF_motor.setSpeed(255);
+      leftF_motor.setSpeed(255);
+      rightF_motor.run (FORWARD);
+      rightR_motor.run (FORWARD);
+      leftF_motor.run (BACKWARD);
+      leftR_motor.run (BACKWARD);
+
+    }
+    else if (d == 'L') {
+      rightR_motor.setSpeed(255);
+      leftR_motor.setSpeed(255);
+      rightF_motor.setSpeed(255);
+      leftF_motor.setSpeed(255);
+      rightF_motor.run (BACKWARD);
+      rightR_motor.run (BACKWARD);
+      leftF_motor.run (FORWARD);
+      leftR_motor.run (FORWARD);
+
+    }
+
+    else if (d == 'F') {
+      rightR_motor.setSpeed(255);
+      leftR_motor.setSpeed(255);
+      rightF_motor.setSpeed(255);
+      leftF_motor.setSpeed(255);
+      rightF_motor.run (FORWARD);
+      rightR_motor.run (FORWARD);
+      leftF_motor.run (FORWARD);
+      leftR_motor.run (FORWARD);
+
+    }
+
+
+    else if (d == 'S') {
+
+      rightF_motor.run (RELEASE);
+      rightR_motor.run (RELEASE);
+      leftF_motor.run (RELEASE);
+      leftR_motor.run (RELEASE);
+    }
+    else if (d == 'G')
+    {
+      rightR_motor.setSpeed(50);
+      leftR_motor.setSpeed(255);
+      rightF_motor.setSpeed(50);
+      leftF_motor.setSpeed(255);
+      rightF_motor.run (FORWARD);
+      rightR_motor.run (FORWARD);
+      leftF_motor.run (FORWARD);
+      leftR_motor.run (FORWARD);
+    }
+    else if (d == 'I')
+    {
+      rightR_motor.setSpeed(255);
+      leftR_motor.setSpeed(50);
+      rightF_motor.setSpeed(255);
+      leftF_motor.setSpeed(50);
+      rightF_motor.run (FORWARD);
+      rightR_motor.run (FORWARD);
+      leftF_motor.run (FORWARD);
+      leftR_motor.run (FORWARD);
+    }
+    else if (d == 'H')
+    {
+      rightR_motor.setSpeed(50);
+      leftR_motor.setSpeed(255);
+      rightF_motor.setSpeed(50);
+      leftF_motor.setSpeed(255);
+      rightF_motor.run (BACKWARD);
+      rightR_motor.run (BACKWARD);
+      leftF_motor.run (BACKWARD);
+      leftR_motor.run (BACKWARD);
+    }
+    else if (d == 'J')
+    {
+      rightR_motor.setSpeed(255);
+      leftR_motor.setSpeed(50);
+      rightF_motor.setSpeed(255);
+      leftF_motor.setSpeed(50);
+      rightF_motor.run (BACKWARD);
+      rightR_motor.run (BACKWARD);
+      leftF_motor.run (BACKWARD);
+      leftR_motor.run (BACKWARD);
+    }
+  }
+
+
+
+}
+float readDist() { // read the ultrasonic sensor distance
+ delayMicroseconds(700);   
+  unsigned int uS = sonar.ping(MAX_DISTANCE);
+  float cm = uS/US_ROUNDTRIP_CM;
+  if(cm==0) return MAX_DISTANCE;
+  return cm;
+}
